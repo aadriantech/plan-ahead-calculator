@@ -1,0 +1,11 @@
+version: '3.8'  # Or a suitable Compose file version
+
+services:
+  webapp: # Name of your service
+    build: 
+      context: . # Current directory containing docker-compose.yml
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "5000:5000"     
+    volumes:
+      - .:/var/www # Mount the current directory to /app
