@@ -1,3 +1,4 @@
 /runtime/*
 .DS_Store
 __pycache__
+.tailwind_initialized
