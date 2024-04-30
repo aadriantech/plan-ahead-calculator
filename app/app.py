@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def form():
-    return render_template('index.html')
+    return render_template('financial_planning_tool.html')
 
 @app.route('/submit', methods=['POST'])
 def submit():
