@@ -2,7 +2,10 @@
 
 # Optional: Set Flask environment variables 
 export FLASK_APP=app.py  # Assuming your main Flask file is named app.py
-export FLASK_ENV=local  
+export FLASK_ENV=local
+
+# print environment variables
+printenv | sort
 
 INIT_FLAG_FILE=".tailwind_initialized" 
 
@@ -51,22 +54,44 @@ npm install -D tailwindcss postcss autoprefixer
 fi
 
 # Check and update if necessary npm libraries using NPM ci
+echo "[ENTRYPOINT] check NPM libraries based on package lock file"
 npm ci
 
 if [ "$FLASK_ENV" == "local" ]; then
-    echo "[ENTRYPOINT] Local environment detected. Running 'npm run build:css -- --watch'"
-    npm run build:css -- --watch
+    echo "[ENTRYPOINT] Local environment detected."
+
 else
     echo "[ENTRYPOINT] Environment is not local."
-    
-    # Build the CSS files
-    echo "[ENTRYPOINT] Build the tailwind CSS files.."
-    RUN npm run build:css
 fi
+
+# Build the CSS files
+echo "[ENTRYPOINT] Build the tailwind CSS files.."
+npx tailwindcss -i /var/www/app/static/styles/main.css -o /var/www/app/static/styles/output.css
+TAILWIND_OUTPUT_FILE="/var/www/app/static/styles/output.css"
+
+# Timeout settings
+MAX_WAIT_SECONDS=30  # Maximum time to wait for the CSS file
+CHECK_INTERVAL=5     # Interval between checks (in seconds)
+
+# Loop until the file exists or the timeout is reached
+COUNTER=0
+while [ ! -f "$TAILWIND_OUTPUT_FILE" ] && [ $COUNTER -lt $MAX_WAIT_SECONDS ]; do
+    echo "[ENTRYPOINT] CSS file not found. Waiting for $CHECK_INTERVAL seconds..."
+    sleep $CHECK_INTERVAL
+    COUNTER=$((COUNTER + CHECK_INTERVAL)) 
+done
 
 echo "[ENTRYPOINT] Checking Flask version..."
 flask --version
 
-echo "[ENTRYPOINT] Starting the Flask server..."
-cd /var/www/app
-flask run --host=0.0.0.0
+# Check if the file appeared within the timeout
+if [ -f "$TAILWIND_OUTPUT_FILE" ]; then
+    echo "[ENTRYPOINT] CSS file found, Starting the Flask server..."
+    cd /var/www/app
+    flask run --host=0.0.0.0
+else
+    echo "[ENTRYPOINT] Timeout waiting for output CSS file. Exiting."
+    # You might want to exit with an error code if appropriate: 
+    exit 1
+fi
+
