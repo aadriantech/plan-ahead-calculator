@@ -50,18 +50,18 @@
         </div>
 
         <!-- Begin::chart -->
-        <div class="p-4 bg-gray-2   00">
-            <h1 class="text-3xl font-bold mb-4">Financial Overview</h1>
-      <div>
-        <span>Total Assets at Death:</span>
-        <span id="total-assets">$0.00</span>
-      </div>
-      <div>
-        <span>Annual Annuity Payout:</span>
-        <span id="annuity-payout">$0.00</span>
-      </div>
+        <div class="p-4 bg-white">
+          <h1 class="text-3xl font-bold mb-4">Financial Overview</h1>
+          <div>
+            <span>Total Assets at Death:</span>
+            <span id="total-assets">$0.00</span>
+          </div>
+          <div>
+            <span>Annual Annuity Payout:</span>
+            <span id="annuity-payout">$0.00</span>
+          </div>
 
-      <canvas id="financialChart" width="400" height="400" class="max-w-md max-h-md mx-auto border border-gray-300 rounded-md shadow-md"></canvas>
+          <canvas id="financialChart" width="400" height="400" class="max-w-md max-h-md mx-auto border border-gray-300 rounded-md shadow-md"></canvas>
         </div>
       </div>
     </div>
@@ -69,90 +69,90 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        $(document).ready(function () {
-            const annuityType = $('select[name="annuity_type"]')
-            annuityType.change(function () {
-              const selectedType = $(this).val()
-              const returnRateGroup = $('#returnRateGroup')
-              if (selectedType === 'variable') {
-                returnRateGroup.show()
-              } else {
-                returnRateGroup.hide()
+      $(document).ready(function () {
+        const annuityType = $('select[name="annuity_type"]')
+        annuityType.change(function () {
+          const selectedType = $(this).val()
+          const returnRateGroup = $('#returnRateGroup')
+          if (selectedType === 'variable') {
+            returnRateGroup.show()
+          } else {
+            returnRateGroup.hide()
+          }
+        })
+      
+        let financialChart
+      
+        $('#financialForm').submit(function (event) {
+          event.preventDefault()
+          var formData = {
+            total_assets_at_death: parseFloat($('input[name="total_assets_at_death"]').val()),
+            annuity_type: $('select[name="annuity_type"]').val(),
+            annuity_duration: $('select[name="annuity_duration"]').val(),
+            expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val())
+          }
+      
+          let years
+          if (formData.annuity_duration === 'lifetime') {
+            years = 20 // default lifetime duration in years
+          } else {
+            years = parseInt(formData.annuity_duration)
+          }
+      
+          var result
+          if (formData.annuity_type === 'fixed') {
+            result = formData.total_assets_at_death / years
+          } else if (formData.annuity_type === 'variable') {
+            result = (formData.total_assets_at_death * (formData.expected_return_rate / 100)) / years
+          } else {
+            result = 0
+          }
+      
+          const ctx = document.getElementById('financialChart').getContext('2d')
+          const chartData = {
+            labels: ['Total Assets at Death', 'Annual Annuity Payout'],
+            datasets: [
+              {
+                label: 'Financial Data',
+                data: [formData.total_assets_at_death, result],
+                backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderWidth: 1
               }
-            })
-          
-            let financialChart
-          
-            $('#financialForm').submit(function (event) {
-              event.preventDefault()
-              var formData = {
-                total_assets_at_death: parseFloat($('input[name="total_assets_at_death"]').val()),
-                annuity_type: $('select[name="annuity_type"]').val(),
-                annuity_duration: $('select[name="annuity_duration"]').val(),
-                expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val())
-              }
-          
-              let years
-              if (formData.annuity_duration === 'lifetime') {
-                years = 20 // default lifetime duration in years
-              } else {
-                years = parseInt(formData.annuity_duration)
-              }
-          
-              var result
-              if (formData.annuity_type === 'fixed') {
-                result = formData.total_assets_at_death / years
-              } else if (formData.annuity_type === 'variable') {
-                result = (formData.total_assets_at_death * (formData.expected_return_rate / 100)) / years
-              } else {
-                result = 0
-              }
-          
-              const ctx = document.getElementById('financialChart').getContext('2d')
-              const chartData = {
-                labels: ['Total Assets at Death', 'Annual Annuity Payout'],
-                datasets: [
-                  {
-                    label: 'Financial Data',
-                    data: [formData.total_assets_at_death, result],
-                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
-                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-                    borderWidth: 1
-                  }
-                ]
-              }
-          
-              if (financialChart) {
-                financialChart.data.datasets[0].data = [formData.total_assets_at_death, result]
-                financialChart.update() // Redraw the chart
-              } else {
-                financialChart = new Chart(ctx, {
-                  type: 'bar',
-                  data: chartData,
-                  options: {
-                    scales: {
-                      yAxes: [
-                        {
-                          ticks: {
-                            beginAtZero: true
-                          }
-                        }
-                      ]
-                    },
-                    legend: {
-                      display: false
+            ]
+          }
+      
+          if (financialChart) {
+            financialChart.data.datasets[0].data = [formData.total_assets_at_death, result]
+            financialChart.update() // Redraw the chart
+          } else {
+            financialChart = new Chart(ctx, {
+              type: 'bar',
+              data: chartData,
+              options: {
+                scales: {
+                  yAxes: [
+                    {
+                      ticks: {
+                        beginAtZero: true
+                      }
                     }
-                  }
-                })
+                  ]
+                },
+                legend: {
+                  display: false
+                }
               }
-          
-              const formatter = new Intl.NumberFormat('en-US')
-              const formattedNumber = formatter.format(result)
-              const formattedNumberAssets = formatter.format(formData.total_assets_at_death)
-              $('#total-assets').html(formattedNumberAssets)
-              $('#annuity-payout').html(formattedNumber)
             })
-          })
+          }
+      
+          const formatter = new Intl.NumberFormat('en-US')
+          const formattedNumber = formatter.format(result)
+          const formattedNumberAssets = formatter.format(formData.total_assets_at_death)
+          $('#total-assets').html(formattedNumberAssets)
+          $('#annuity-payout').html(formattedNumber)
+        })
+      })
     </script>
   </body>
 </html>
