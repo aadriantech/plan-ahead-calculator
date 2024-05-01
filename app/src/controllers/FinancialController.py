@@ -37,7 +37,7 @@ class FinancialController(MethodView):
     Return: JSON
     """
     def default_case(self):
-        return jsonify({"info": "Bad request"}, 400)
+        return jsonify({"info": "Index page"}, 200)
         
     """
     Provides all the information for a given pokemon name

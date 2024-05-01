@@ -10,7 +10,5 @@ app = Flask(__name__)
 # Initialize routes
 init_routes(app)
 
-port_number = 5000
-
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=port_number)
+    app.run(debug=True)

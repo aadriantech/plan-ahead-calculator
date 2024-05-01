@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# Optional: Set Flask environment variables 
-export FLASK_APP=app.py  # Assuming your main Flask file is named app.py
-export FLASK_ENV=local
-
-# print environment variables
-printenv | sort
-
 INIT_FLAG_FILE=".tailwind_initialized" 
 
 # Check if Tailwind CSS is initialized if not, create the necessary tailwind config files
@@ -77,6 +70,10 @@ done
 echo "[ENTRYPOINT] Checking Flask version..."
 flask --version
 
+# Optional: Set Flask environment variables 
+export FLASK_APP=main.py # root python file - entrypoint of application
+export FLASK_ENV=local
+
 # Check if the file appeared within the timeout
 if [ -f "$TAILWIND_OUTPUT_FILE" ]; then
     echo "[ENTRYPOINT] CSS file found, Starting the Flask server..."
@@ -84,12 +81,10 @@ if [ -f "$TAILWIND_OUTPUT_FILE" ]; then
 
     if [ "$FLASK_ENV" == "local" ]; then
         echo "[ENTRYPOINT] Local environment detected."
-        sleep 9999d
-        flask --app app run --debug
-        #### TODO CANNOT REACH CONTAINER PORT 5000
+        flask run --host=0.0.0.0 --debug
     else
         echo "[ENTRYPOINT] Non-local environment."
-        flask --app app run
+        flask run --host=0.0.0.0
     fi
 
 else
