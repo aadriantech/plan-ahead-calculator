@@ -1,74 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Financial Planning Tools</title>
-    <link href="{{ url_for('static', filename='styles/output.css') }}" rel="stylesheet">
-</head>
-<body>
-    <div class="container mx-auto mt-5 p-6 bg-gray-100 rounded-lg shadow-md">
-        <h2 class="text-2xl font-bold mb-4">Financial Planning Tool</h2>
-        <form action="/submit" method="post" id="financialForm">
-    
+    <link href="{{ url_for('static', filename='styles/output.css') }}" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container mx-auto">
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Begin::calculator -->
+        <div class="p-4 bg-gray-200">
+          <h2 class="text-2xl font-bold mb-4">Financial Planning Tool</h2>
+          <form action="/submit" method="post" id="financialForm">
             <fieldset class="mb-4">
-                <legend class="font-semibold text-lg mb-2">Assets and Liabilities</legend> 
-                <div class="form-group mb-3">
-                    <label for="total_assets_at_death" class="block mb-1">Total Assets at Death:</label>
-                    <input type="number" name="total_assets_at_death" id="total_assets_at_death" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-                </div>
+              <legend class="font-semibold text-lg mb-2">Assets and Liabilities</legend>
+              <div class="form-group mb-3">
+                <label for="total_assets_at_death" class="block mb-1">Total Assets at Death:</label>
+                <input type="number" name="total_assets_at_death" id="total_assets_at_death" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
             </fieldset>
-    
-            <fieldset class="mb-4">
-                <legend class="font-semibold text-lg mb-2">Annuity Options</legend> 
-                <div class="form-group mb-3">
-                    <label for="annuity_type" class="block mb-1">Annuity Type:</label>
-                    <select name="annuity_type" id="annuity_type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                        <option value="fixed">Fixed</option>
-                        <option value="variable">Variable</option>
-                    </select>
-                </div>
 
-                <div class="mb-4"> 
-                    <label for="annuity_duration" class="block text-sm font-medium text-gray-700 mb-1">Annuity Duration:</label>
-                    <select name="annuity_duration" id="annuity_duration" 
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
-                        <option value="lifetime">Lifetime</option>
-                        <option value="10">10 Years</option>
-                        <option value="20">20 Years</option>
-                    </select>
-                </div>
-                
-                <div class="mb-4" id="returnRateGroup" style="display:none;">
-                    <label for="expected_return_rate" class="block text-sm font-medium text-gray-700 mb-1">Expected Rate of Return (%):</label>
-                    <input type="number" name="expected_return_rate" id="expected_return_rate" 
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"> 
-                </div>
-                
+            <fieldset class="mb-4">
+              <legend class="font-semibold text-lg mb-2">Annuity Options</legend>
+              <div class="form-group mb-3">
+                <label for="annuity_type" class="block mb-1">Annuity Type:</label>
+                <select name="annuity_type" id="annuity_type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="fixed">Fixed</option>
+                  <option value="variable">Variable</option>
+                </select>
+              </div>
+
+              <div class="mb-4">
+                <label for="annuity_duration" class="block text-sm font-medium text-gray-700 mb-1">Annuity Duration:</label>
+                <select name="annuity_duration" id="annuity_duration" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+                  <option value="lifetime">Lifetime</option>
+                  <option value="10">10 Years</option>
+                  <option value="20">20 Years</option>
+                </select>
+              </div>
+
+              <div class="mb-4" id="returnRateGroup" style="display:none;">
+                <label for="expected_return_rate" class="block text-sm font-medium text-gray-700 mb-1">Expected Rate of Return (%):</label>
+                <input type="number" name="expected_return_rate" id="expected_return_rate" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
+              </div>
             </fieldset>
-    
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md">
-                Generate Report
-            </button>
-        </form>
+
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md">Generate Report</button>
+          </form>
+        </div>
+
+        <!-- Begin::chart -->
+        <div class="p-4 bg-gray-2   00">
+            <h1 class="text-3xl font-bold mb-4">Financial Overview</h1>
+      <div>
+        <span>Total Assets at Death:</span>
+        <span id="total-assets">$0.00</span>
+      </div>
+      <div>
+        <span>Annual Annuity Payout:</span>
+        <span id="annuity-payout">$0.00</span>
+      </div>
+
+      <canvas id="financialChart" width="400" height="400" class="max-w-md max-h-md mx-auto border border-gray-300 rounded-md shadow-md"></canvas>
+        </div>
+      </div>
     </div>
-</body>    
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    $(document).ready(function() {
-        var annuityType = $('select[name="annuity_type"]');
-        annuityType.change(function() {
-            var selectedType = $(this).val();
-            var returnRateGroup = $('#returnRateGroup');
-            if (selectedType === 'variable') {
-                returnRateGroup.show();
-            } else {
-                returnRateGroup.hide();
-            }
-        });
-    });
-</script>
-</body>
-</html>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            const annuityType = $('select[name="annuity_type"]')
+            annuityType.change(function () {
+              const selectedType = $(this).val()
+              const returnRateGroup = $('#returnRateGroup')
+              if (selectedType === 'variable') {
+                returnRateGroup.show()
+              } else {
+                returnRateGroup.hide()
+              }
+            })
+          
+            let financialChart
+          
+            $('#financialForm').submit(function (event) {
+              event.preventDefault()
+              var formData = {
+                total_assets_at_death: parseFloat($('input[name="total_assets_at_death"]').val()),
+                annuity_type: $('select[name="annuity_type"]').val(),
+                annuity_duration: $('select[name="annuity_duration"]').val(),
+                expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val())
+              }
+          
+              let years
+              if (formData.annuity_duration === 'lifetime') {
+                years = 20 // default lifetime duration in years
+              } else {
+                years = parseInt(formData.annuity_duration)
+              }
+          
+              var result
+              if (formData.annuity_type === 'fixed') {
+                result = formData.total_assets_at_death / years
+              } else if (formData.annuity_type === 'variable') {
+                result = (formData.total_assets_at_death * (formData.expected_return_rate / 100)) / years
+              } else {
+                result = 0
+              }
+          
+              const ctx = document.getElementById('financialChart').getContext('2d')
+              const chartData = {
+                labels: ['Total Assets at Death', 'Annual Annuity Payout'],
+                datasets: [
+                  {
+                    label: 'Financial Data',
+                    data: [formData.total_assets_at_death, result],
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                    borderWidth: 1
+                  }
+                ]
+              }
+          
+              if (financialChart) {
+                financialChart.data.datasets[0].data = [formData.total_assets_at_death, result]
+                financialChart.update() // Redraw the chart
+              } else {
+                financialChart = new Chart(ctx, {
+                  type: 'bar',
+                  data: chartData,
+                  options: {
+                    scales: {
+                      yAxes: [
+                        {
+                          ticks: {
+                            beginAtZero: true
+                          }
+                        }
+                      ]
+                    },
+                    legend: {
+                      display: false
+                    }
+                  }
+                })
+              }
+          
+              const formatter = new Intl.NumberFormat('en-US')
+              const formattedNumber = formatter.format(result)
+              const formattedNumberAssets = formatter.format(formData.total_assets_at_death)
+              $('#total-assets').html(formattedNumberAssets)
+              $('#annuity-payout').html(formattedNumber)
+            })
+          })
+    </script>
+  </body>
+</html>

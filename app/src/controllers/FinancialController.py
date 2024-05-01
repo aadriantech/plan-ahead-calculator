@@ -23,10 +23,12 @@ class FinancialController(MethodView):
 
     def store(self):
         # Handle the form submission and save to database
-        data = request.get_json()
-        print(data)
+        # data = request.get_json()
+        # language = request.args.get('language')
+        
+        data = dict(request.form)
         # Logic to save the data to the database
-        return jsonify({'message': 'Resource saved successfully'}), 201
+        return jsonify({'message': 'Resource saved successfully'}, data), 201
 
     def put(self):
         resource_id = request.path.split('/')[-1]
