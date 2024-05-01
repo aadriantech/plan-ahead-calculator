@@ -6,6 +6,6 @@ services:
       context: . # Current directory containing docker-compose.yml
       dockerfile: ./docker/Dockerfile
     ports:
-      - "5000:5000"     
+      - "5000:5000"
     volumes:
       - .:/var/www # Mount the current directory to /app

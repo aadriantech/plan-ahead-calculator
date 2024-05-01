@@ -57,13 +57,6 @@ fi
 echo "[ENTRYPOINT] check NPM libraries based on package lock file"
 npm ci
 
-if [ "$FLASK_ENV" == "local" ]; then
-    echo "[ENTRYPOINT] Local environment detected."
-
-else
-    echo "[ENTRYPOINT] Environment is not local."
-fi
-
 # Build the CSS files
 echo "[ENTRYPOINT] Build the tailwind CSS files.."
 npx tailwindcss -i /var/www/app/static/styles/main.css -o /var/www/app/static/styles/output.css
@@ -88,7 +81,17 @@ flask --version
 if [ -f "$TAILWIND_OUTPUT_FILE" ]; then
     echo "[ENTRYPOINT] CSS file found, Starting the Flask server..."
     cd /var/www/app
-    flask run --host=0.0.0.0
+
+    if [ "$FLASK_ENV" == "local" ]; then
+        echo "[ENTRYPOINT] Local environment detected."
+        sleep 9999d
+        flask --app app run --debug
+        #### TODO CANNOT REACH CONTAINER PORT 5000
+    else
+        echo "[ENTRYPOINT] Non-local environment."
+        flask --app app run
+    fi
+
 else
     echo "[ENTRYPOINT] Timeout waiting for output CSS file. Exiting."
     # You might want to exit with an error code if appropriate: 

@@ -52,6 +52,11 @@ def prepare_chart_data(total_assets, annuity_payout):
         }]
     }
 
+# if __name__ == '__main__':
+#     app.run(debug=True)
+    
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)  # Use debug=True for development
+
 

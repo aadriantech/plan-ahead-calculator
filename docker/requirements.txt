@@ -1,2 +1,3 @@
 Flask
 weasyprint
+requests
