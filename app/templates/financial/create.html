@@ -6,7 +6,7 @@
     <link href="{{ url_for('static', filename='styles/output.css') }}" rel="stylesheet" />
   </head>
   <body>
-    <div class="container mx-auto">
+    <div id="content" class="container mx-auto">
       <div class="grid grid-cols-2 gap-4">
         <!-- Begin::calculator -->
         <div class="p-4 bg-gray-200">
@@ -62,12 +62,14 @@
           </div>
 
           <canvas id="financialChart" width="400" height="400" class="max-w-md max-h-md mx-auto border border-gray-300 rounded-md shadow-md"></canvas>
+          <button id="download-pdf" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md">Download as PDF</button>
         </div>
       </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
     <script>
       $(document).ready(function () {
         const annuityType = $('select[name="annuity_type"]')
@@ -137,6 +139,14 @@
                         beginAtZero: true
                       }
                     }
+                  ],
+                  xAxes: [
+                    {
+                      ticks: {
+                        autoSkip: false, // prevent skipping labels
+                        rotation: 45 // rotate by 45 degrees
+                      }
+                    }
                   ]
                 },
                 legend: {
@@ -151,6 +161,55 @@
           const formattedNumberAssets = formatter.format(formData.total_assets_at_death)
           $('#total-assets').html(formattedNumberAssets)
           $('#annuity-payout').html(formattedNumber)
+      
+          /** PDF Generation
+                                        document.getElementById('download-pdf').addEventListener('click', function () {
+                                          var doc = new jsPDF({
+                                            orientation: 'p', // Portrait orientation
+                                            unit: 'mm', // Units: millimeters
+                                            format: 'a4', // Page format: A4
+                                            putOnlyUsedFonts: true,
+                                            floatPrecision: 16,
+                                            lineHeight: 1.2
+                                          })
+                                    
+                                          // Set background color to white
+                                          doc.setFillColor(255, 255, 255) // White color
+                                          doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), 'F') // Fill rectangle with white color
+                                    
+                                          // Add HTML content
+                                          var contentElement = document.getElementById('content')
+                                          doc.fromHTML(contentElement, 10, 10, {
+                                            width: 180 // Width of the content on the PDF page
+                                          })
+                                    
+                                          // Add chart image
+                                          var chart = document.getElementById('financialChart').toDataURL('image/jpeg', 1.0)
+                                          doc.addImage(chart, 'JPEG', 10, 150, 180, 100) // Adjust the position and size of the image as needed
+                                    
+                                          // Save the PDF
+                                          doc.save('financial-plan.pdf')
+                                        }) **/
+        })
+      
+        // Send post data to API
+        // Generate PDF
+        document.getElementById('download-pdf').addEventListener('click', function () {
+          const formattedAssets = $('#total-assets').text()
+          const formattedAnnunity = $('#annuity-payout').text()
+          fetch("{{ url_for('financial_controller') }}store/", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              formatted_assets: formattedAssets,
+              formatted_annuity: formattedAnnunity
+            })
+          })
+            .then((response) => response.json())
+            .then((data) => console.log(data))
+            //.catch((error) => console.error(error))
         })
       })
     </script>
