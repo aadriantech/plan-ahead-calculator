@@ -46,6 +46,7 @@
             </fieldset>
 
             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md">Generate Report</button>
+            <button id="download-pdf" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md">Printable Version</button>
           </form>
         </div>
 
@@ -54,15 +55,16 @@
           <h1 class="text-3xl font-bold mb-4">Financial Overview</h1>
           <div>
             <span>Total Assets at Death:</span>
-            <span id="total-assets">$0.00</span>
+            <span id="total_assets">$0.00</span>
           </div>
           <div>
             <span>Annual Annuity Payout:</span>
-            <span id="annuity-payout">$0.00</span>
+            <span id="annuity_payout">$0.00</span>
           </div>
 
           <canvas id="financialChart" width="400" height="400" class="max-w-md max-h-md mx-auto border border-gray-300 rounded-md shadow-md"></canvas>
-          <button id="download-pdf" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md">Download as PDF</button>
+          <input id="raw_total_assets" type="hidden" name="raw_total_assets" />
+          <input id="raw_annuity_payout" type="hidden" name="raw_annuity_payout" />
         </div>
       </div>
     </div>
@@ -157,10 +159,12 @@
           }
       
           const formatter = new Intl.NumberFormat('en-US')
-          const formattedNumber = formatter.format(result)
+          const formattedNumberPayout = formatter.format(result)
           const formattedNumberAssets = formatter.format(formData.total_assets_at_death)
-          $('#total-assets').html(formattedNumberAssets)
-          $('#annuity-payout').html(formattedNumber)
+          $('#total_assets').html(formattedNumberAssets)
+          $('#annuity_payout').html(formattedNumberPayout)
+          $('#raw_total_assets').html(formData.total_assets_at_death)
+          $('#raw_annuity_payout').html(result)
       
           /** PDF Generation
                                         document.getElementById('download-pdf').addEventListener('click', function () {
@@ -195,8 +199,10 @@
         // Send post data to API
         // Generate PDF
         document.getElementById('download-pdf').addEventListener('click', function () {
-          const formattedAssets = $('#total-assets').text()
-          const formattedAnnunity = $('#annuity-payout').text()
+          const formattedAssets = $('#total_assets').text()
+          const formattedAnnunity = $('#annuity_payout').text()
+          const assets = $('#raw_total_assets').text()
+          const annuity = $('#raw_annuity_payout').text()
           fetch("{{ url_for('financial_controller') }}store/", {
             method: 'POST',
             headers: {
@@ -204,12 +210,14 @@
             },
             body: JSON.stringify({
               formatted_assets: formattedAssets,
-              formatted_annuity: formattedAnnunity
+              formatted_annuity: formattedAnnunity,
+              assets,
+              annuity
             })
           })
             .then((response) => response.json())
             .then((data) => console.log(data))
-            //.catch((error) => console.error(error))
+            .catch((error) => console.error(error))
         })
       })
     </script>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printable Brochure</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            .hide-on-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-white p-8">
+    <div class="bg-blue-500 text-white text-center py-4">
+        <h1 class="text-4xl font-bold">Financial Brochure</h1>
+        <p class="text-lg">Personal Financial Overview</p>
+    </div>
+
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold mb-4">Personal Information</h2>
+        <div>
+            <p><span class="font-semibold">Name:</span> John Doe</p>
+            <p><span class="font-semibold">Age:</span> 35</p>
+            <p><span class="font-semibold">Email:</span> john@example.com</p>
+            <p><span class="font-semibold">Phone:</span> +1234567890</p>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold mb-4">Financial Summary</h2>
+        <div>
+            <p><span class="font-semibold">Total Assets:</span> $1,000,000</p>
+            <p><span class="font-semibold">Total Annuity:</span> $50,000</p>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold mb-4">Financial Chart</h2>
+        <div class="bg-gray-200 p-4 rounded-md">
+            <!-- Placeholder for chart image -->
+            <img src="chart.jpg" alt="Financial Chart" class="mx-auto" style="max-width: 100%;">
+        </div>
+    </div>
+
+    <!-- Button to print the brochure -->
+    <button class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md mt-8 hide-on-print" onclick="window.print()">Print Brochure</button>
+</body>
+
+</html>

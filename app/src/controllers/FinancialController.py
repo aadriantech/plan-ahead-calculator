@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify, render_template, send_file
 from flask.views import MethodView
-from weasyprint import HTML
-import os
-import matplotlib.pyplot as plt
-from io import BytesIO
+from fpdf import FPDF
 import json
+import io
+import os
 
 class FinancialController(MethodView):
     def get(self):
@@ -22,60 +21,94 @@ class FinancialController(MethodView):
 
     def create(self):
         # Display the create form
-        # return render_template('financial/pdf_financial_chart.html', 
-        #                         chart_filename='financial_chart.png',
-        #                         total_assets_at_death="1,000,000",
-        #                         annuity_payout="20,000")
         return render_template('financial/create.html')
 
     def store(self):
         # Extract data from the form submission
         formatted_assets = request.json.get('formatted_assets')
         formatted_annuity = request.json.get('formatted_annuity')
+        assets = int(request.json.get('assets'))
+        annuity = int(request.json.get('annuity'))
         
-        # Generate the chart
-        fig, ax = plt.subplots()
-        ax.bar(['Annuity Payout', 'Total Assets at Death'], [formatted_annuity, formatted_assets])
-        ax.set_xlabel('Category')
-        ax.set_ylabel('Value')
-        ax.set_title('Financial Chart')
-        
-        # Set the minimum value of the y-axis to 0
-        ax.set_ylim(bottom=0)
+        data = {
+            'assets': assets,
+            'annuity': annuity
+        }
 
-        # Save the chart to a file
-        chart_filename = 'financial_chart.png'
-        chart_path = os.path.join('/var/www/app/static/media', chart_filename)
-        fig.savefig(chart_path)
-        
-        # Close the figure to release resources
-        plt.close(fig)
+        # Calculate y-axis range
+        max_value = max(data.values()) * 1.3  # Additional 30% to the max value
+        num_guidelines = 5  # Number of guidelines on the y-axis
+        guideline_values = [max_value * (i / num_guidelines) for i in range(num_guidelines + 1)]
 
-       # Render the HTML template with the data
-        rendered_html = render_template('financial/pdf_financial_chart.html', 
-                                chart_filename=chart_filename,
-                                total_assets_at_death=formatted_assets,
-                                annuity_payout=formatted_annuity)
+        # Create PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
 
-        # Generate PDF from rendered HTML
-        pdf = HTML(string=rendered_html).write_pdf()
+        # Add title
+        pdf.cell(200, 10, txt="Financial Chart", ln=True, align='C')
+        pdf.ln(10)  # Add spacing after the title
 
-        # Save the PDF file
-        pdf_filename = 'financial_report.pdf'
-        pdf_path = os.path.join('/var/www/app/static/media', pdf_filename)
-        with open(pdf_path, 'wb') as f:
-            f.write(pdf)
+        # Draw chart
+        chart_width = 160
+        chart_height = 80
+        x_start = 30
+        y_start = 40
+        pdf.rect(x_start, y_start, chart_width, chart_height)  # Outer rectangle
 
-        # Serve the PDF file
-        return send_file(pdf_path, as_attachment=True)
+        # Draw guidelines on y-axis
+        pdf.set_line_width(0.2)
+        for value in guideline_values[1:]:
+            y = y_start + (chart_height * (1 - value / max_value))
+            pdf.line(x_start, y, x_start + chart_width, y)
+            # Add y-axis labels
+            pdf.set_xy(x_start - 10, y - 3)
+            pdf.cell(10, 10, str(int(value)), align='C')
 
-        # This block won't be reachable after the return statement above, so you can remove it
+        # Draw bars
+        bar_width = chart_width / len(data)
+        x_position = x_start + bar_width / 4  # Adjust x position for centered bars
+        for key, value in data.items():
+            bar_height = (value / max_value) * chart_height
+            # Choose colors for bars
+            if key == 'assets':
+                pdf.set_fill_color(0, 102, 204)  # Dark blue
+            elif key == 'annuity':
+                pdf.set_fill_color(51, 204, 51)  # Dark green
+            pdf.rect(x_position, y_start + chart_height - bar_height, bar_width / 2, bar_height, 'F')
+            # Add value labels on top of bars
+            pdf.set_xy(x_position, y_start + chart_height - bar_height - 5)
+            pdf.cell(bar_width / 2, 10, str(value), align='C')
+            x_position += bar_width  # Increase x position for next bar
+
+        # Add y-axis label
+        pdf.set_xy(x_start - 15, y_start + chart_height / 2)
+        pdf.cell(10, 10, "Value", align='C')
+        # Add x-axis label
+        pdf.set_xy(x_start + chart_width / 2 - 20, y_start + chart_height + 10)
+        pdf.cell(10, 10, "Total Assets and Annuity", align='C')
+
+        # Add legend
+        pdf.set_fill_color(0, 102, 204)  # Dark blue for assets
+        pdf.rect(x_start + 120, y_start + 5, 5, 5, 'F')
+        pdf.set_xy(x_start + 128, y_start)
+        pdf.cell(10, 10, "Assets", align='L')
+
+        pdf.set_fill_color(51, 204, 51)  # Dark green for annuity
+        pdf.rect(x_start + 120, y_start + 15, 5, 5, 'F')
+        pdf.set_xy(x_start + 128, y_start + 10)
+        pdf.cell(10, 10, "Annuity", align='L')
+
+        # Save PDF
+        pdf_path = '/var/www/app/static/media/financial_chart.pdf'  # Customize the path
+        pdf.output(pdf_path)
+
+        # Return response
         return jsonify({
             'message': 'Resource saved successfully',
             'data': request.json
         }), 200
-
-
+    
     def put(self):
         resource_id = request.path.split('/')[-1]
         if resource_id.isdigit():
