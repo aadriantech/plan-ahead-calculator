@@ -217,6 +217,7 @@
             formatted_assets: $('#total_assets').text(),
             formatted_annuity: $('#annuity_payout').text()
           }
+          
           fetch("{{ url_for('financial_controller') }}store/", {
             method: 'POST',
             headers: {
@@ -225,6 +226,15 @@
             body: JSON.stringify(formData)
           })
             .then((response) => response.json())
+            .then(data => {
+                const downloadUrl = "{{ url_for('static', filename='media/financial_chart.pdf') }}";
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = 'financial_chart.pdf';
+                document.body.appendChild(a); // Required for Firefox
+                a.click();
+                document.body.removeChild(a); // Clean up after download
+              })
             .then((data) => console.log(data))
             .catch((error) => console.error(error))
         })

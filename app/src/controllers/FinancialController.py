@@ -27,10 +27,19 @@ class FinancialController(MethodView):
     def store(self):
         # Extract data from the form submission
         json_data = request.json
-        # formatted_assets = json_data.get('formatted_assets')
-        # formatted_annuity = json_data.get('formatted_annuity')
-        assets = float(json_data.get('assets', 0))  # Convert to float, default to 0 if 'assets' key is missing
-        annuity = float(json_data.get('annuity', 0))  # Convert to float, default to 0 if 'annuity' key is missing
+        assets = float(json_data.get('assets', 0))
+        annuity = float(json_data.get('annuity', 0))
+        
+        # Additional data
+        age = json_data.get('age')
+        annuity_duration = json_data.get('annuity_duration')
+        annuity_type = json_data.get('annuity_type')
+        email = json_data.get('email')
+        expected_return_rate = json_data.get('expected_return_rate')
+        formatted_annuity = json_data.get('formatted_annuity')
+        formatted_assets = json_data.get('formatted_assets')
+        name = json_data.get('name')
+        phone = json_data.get('phone')
 
         data = {
             'assets': assets,
@@ -45,11 +54,13 @@ class FinancialController(MethodView):
         # Create PDF
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", size=12)
+        pdf.set_font("Arial", size=16, style='B')  # Bold title
 
         # Add title
-        pdf.cell(200, 10, txt="Financial Chart", ln=True, align='C')
+        pdf.cell(200, 20, txt="Financial Chart", ln=True, align='C')
         pdf.ln(10)  # Add spacing after the title
+        
+        pdf.set_font("Arial", size=12)
 
         # Draw chart
         chart_width = 160
@@ -103,8 +114,9 @@ class FinancialController(MethodView):
         # Add y-axis label
         pdf.set_xy(x_start - 15, y_start + chart_height / 2)
         pdf.cell(10, 10, "Value", align='C')
+        
         # Add x-axis label
-        pdf.set_xy(x_start + chart_width / 2 - 20, y_start + chart_height + 10)
+        pdf.set_xy(x_start + chart_width / 2 - 20, y_start + chart_height)
         pdf.cell(10, 10, "Total Assets and Annuity", align='C')
 
         # Add legend
@@ -118,8 +130,44 @@ class FinancialController(MethodView):
         pdf.set_xy(x_start + 128, y_start + 10)
         pdf.cell(10, 10, "Annuity", align='L')
 
+        # Add customer information table
+        pdf.ln(90)  # Add spacing before the table
+        pdf.set_font("Arial", size=16, style='B') 
+        pdf.cell(60, 10, txt="Customer Information", ln=True, align='L')  # Narrower first column
+        pdf.set_font("Arial", size=12)  
+
+        # Table headers
+        firstColumnSize = 50
+        secondColumnSize = 130
+        pdf.set_fill_color(192, 192, 192)  # Light gray background for headers
+        pdf.cell(firstColumnSize, 10, txt="Attribute", ln=0, align='L', fill=True)
+        pdf.cell(secondColumnSize, 10, txt="Value", ln=1, align='L', fill=True)  # Wider second column
+
+        # Table data (use a loop if you have more attributes)
+        pdf.set_fill_color(255, 255, 255)  # White background for data cells
+        customer_data = [
+            ("Name", name),
+            ("Email", email),
+            ("Phone", phone),
+            ("Age", age),
+            ("Annuity", formatted_annuity),
+            ("Annuity Duration", annuity_duration),
+            ("Annuity Type", annuity_type),
+            ("Assets", formatted_assets),
+            ("Expected Return Rate", str(expected_return_rate))
+        ]
+        alternate_color = False  # Variable to toggle row colors
+        for attribute, value in customer_data:
+            if alternate_color:
+                pdf.set_fill_color(240, 240, 240)  # Light gray background for alternate rows
+            else:
+                pdf.set_fill_color(255, 255, 255)  # White background for data cells
+            pdf.cell(firstColumnSize, 10, txt=attribute, ln=0, align='L', fill=True)
+            pdf.cell(secondColumnSize, 10, txt=value, ln=1, align='L', fill=True)  # Wider second column
+            alternate_color = not alternate_color  # Toggle row colors
+
         # Save PDF
-        pdf_path = '/var/www/app/static/media/financial_chart.pdf'  # Customize the path
+        pdf_path = '/var/www/app/static/media/financial_chart.pdf'  
         pdf.output(pdf_path)
 
         # Return response
