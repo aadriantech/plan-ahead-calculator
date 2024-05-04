@@ -4,6 +4,7 @@ from fpdf import FPDF
 import json
 import io
 import os
+import locale
 
 class FinancialController(MethodView):
     def get(self):
@@ -25,11 +26,12 @@ class FinancialController(MethodView):
 
     def store(self):
         # Extract data from the form submission
-        formatted_assets = request.json.get('formatted_assets')
-        formatted_annuity = request.json.get('formatted_annuity')
-        assets = int(request.json.get('assets'))
-        annuity = int(request.json.get('annuity'))
-        
+        json_data = request.json
+        # formatted_assets = json_data.get('formatted_assets')
+        # formatted_annuity = json_data.get('formatted_annuity')
+        assets = float(json_data.get('assets', 0))  # Convert to float, default to 0 if 'assets' key is missing
+        annuity = float(json_data.get('annuity', 0))  # Convert to float, default to 0 if 'annuity' key is missing
+
         data = {
             'assets': assets,
             'annuity': annuity
@@ -63,23 +65,40 @@ class FinancialController(MethodView):
             pdf.line(x_start, y, x_start + chart_width, y)
             # Add y-axis labels
             pdf.set_xy(x_start - 10, y - 3)
-            pdf.cell(10, 10, str(int(value)), align='C')
+            pdf.cell(10, 10, locale.format_string("%.2f", value, grouping=True), align='C')
 
         # Draw bars
-        bar_width = chart_width / len(data)
-        x_position = x_start + bar_width / 4  # Adjust x position for centered bars
+        bar_width = chart_width / (len(data) * 2)  # Adjusted bar width to accommodate boxes
+        x_position = x_start + bar_width / 2  # Adjusted x position for centered bars
+
         for key, value in data.items():
             bar_height = (value / max_value) * chart_height
-            # Choose colors for bars
+            # Choose colors for bars and borders
             if key == 'assets':
-                pdf.set_fill_color(0, 102, 204)  # Dark blue
+                pdf.set_fill_color(255, 192, 203)  # Light pink
+                pdf.set_draw_color(255, 0, 102)  # Darker pink border
             elif key == 'annuity':
-                pdf.set_fill_color(51, 204, 51)  # Dark green
-            pdf.rect(x_position, y_start + chart_height - bar_height, bar_width / 2, bar_height, 'F')
+                pdf.set_fill_color(173, 216, 230)  # Light blue
+                pdf.set_draw_color(0, 51, 102)  # Darker blue border
+
+            # Draw box around the bar
+            pdf.rect(x_position, y_start, bar_width, chart_height, 'D')  # 'D' for drawing the border only
+
+            # Draw bar
+            pdf.rect(x_position, y_start + chart_height - bar_height, bar_width, bar_height, 'F')  # 'F' for filling the bar
+
             # Add value labels on top of bars
             pdf.set_xy(x_position, y_start + chart_height - bar_height - 5)
-            pdf.cell(bar_width / 2, 10, str(value), align='C')
-            x_position += bar_width  # Increase x position for next bar
+            formatted_value = locale.format_string("%.2f", value, grouping=True)  # Format value with commas and two decimal places
+            pdf.cell(bar_width, 10, formatted_value, align='C')
+
+            # Move x position for next bar
+            x_position += bar_width * 2  # Double the bar width for separation
+
+        # Draw vertical line to separate the two sets of bars
+        separator_x = x_start + bar_width * 1.5  # X-coordinate for the vertical separator
+        pdf.set_draw_color(0, 0, 0)  # Black color for separator line
+        pdf.line(separator_x, y_start, separator_x, y_start + chart_height)  # Draw vertical line
 
         # Add y-axis label
         pdf.set_xy(x_start - 15, y_start + chart_height / 2)
@@ -89,12 +108,12 @@ class FinancialController(MethodView):
         pdf.cell(10, 10, "Total Assets and Annuity", align='C')
 
         # Add legend
-        pdf.set_fill_color(0, 102, 204)  # Dark blue for assets
+        pdf.set_fill_color(255, 192, 203)  # Light pink for assets
         pdf.rect(x_start + 120, y_start + 5, 5, 5, 'F')
         pdf.set_xy(x_start + 128, y_start)
         pdf.cell(10, 10, "Assets", align='L')
 
-        pdf.set_fill_color(51, 204, 51)  # Dark green for annuity
+        pdf.set_fill_color(173, 216, 230)  # Light blue for annuity
         pdf.rect(x_start + 120, y_start + 15, 5, 5, 'F')
         pdf.set_xy(x_start + 128, y_start + 10)
         pdf.cell(10, 10, "Annuity", align='L')

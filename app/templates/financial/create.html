@@ -12,6 +12,28 @@
         <div class="p-4 bg-gray-200">
           <h2 class="text-2xl font-bold mb-4">Financial Planning Tool</h2>
           <form action="/submit" method="post" id="financialForm">
+            <!-- Client Information -->
+            <fieldset class="mb-4">
+              <legend class="font-semibold text-lg mb-2">Client Information</legend>
+              <div class="form-group mb-3">
+                <label for="name" class="block mb-1">Name:</label>
+                <input type="text" name="name" id="name" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
+              <div class="form-group mb-3">
+                <label for="age" class="block mb-1">Age:</label>
+                <input type="number" name="age" id="age" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
+              <div class="form-group mb-3">
+                <label for="email" class="block mb-1">Email:</label>
+                <input type="email" name="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
+              <div class="form-group mb-3">
+                <label for="phone" class="block mb-1">Phone Number:</label>
+                <input type="tel" name="phone" id="phone" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
+            </fieldset>
+
+            <!-- Assets and Liabilities -->
             <fieldset class="mb-4">
               <legend class="font-semibold text-lg mb-2">Assets and Liabilities</legend>
               <div class="form-group mb-3">
@@ -20,6 +42,7 @@
               </div>
             </fieldset>
 
+            <!-- Annuity Options -->
             <fieldset class="mb-4">
               <legend class="font-semibold text-lg mb-2">Annuity Options</legend>
               <div class="form-group mb-3">
@@ -29,7 +52,6 @@
                   <option value="variable">Variable</option>
                 </select>
               </div>
-
               <div class="mb-4">
                 <label for="annuity_duration" class="block text-sm font-medium text-gray-700 mb-1">Annuity Duration:</label>
                 <select name="annuity_duration" id="annuity_duration" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
@@ -38,21 +60,22 @@
                   <option value="20">20 Years</option>
                 </select>
               </div>
-
               <div class="mb-4" id="returnRateGroup" style="display:none;">
                 <label for="expected_return_rate" class="block text-sm font-medium text-gray-700 mb-1">Expected Rate of Return (%):</label>
                 <input type="number" name="expected_return_rate" id="expected_return_rate" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
               </div>
             </fieldset>
 
+            <!-- Submit Buttons -->
             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md">Generate Report</button>
-            <button id="download-pdf" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md">Printable Version</button>
+            <button id="download-pdf" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md">Generate PDF</button>
           </form>
         </div>
 
         <!-- Begin::chart -->
         <div class="p-4 bg-white">
           <h1 class="text-3xl font-bold mb-4">Financial Overview</h1>
+          <!-- Display Total Assets at Death and Annual Annuity Payout -->
           <div>
             <span>Total Assets at Death:</span>
             <span id="total_assets">$0.00</span>
@@ -62,8 +85,10 @@
             <span id="annuity_payout">$0.00</span>
           </div>
 
+          <!-- Chart Canvas -->
           <canvas id="financialChart" width="400" height="400" class="max-w-md max-h-md mx-auto border border-gray-300 rounded-md shadow-md"></canvas>
-          <input id="raw_total_assets" type="hidden" name="raw_total_assets" />
+
+          <!-- Hidden Input Fields for Raw Data -->
           <input id="raw_annuity_payout" type="hidden" name="raw_annuity_payout" />
         </div>
       </div>
@@ -89,7 +114,11 @@
       
         $('#financialForm').submit(function (event) {
           event.preventDefault()
-          var formData = {
+          const formData = {
+            name: $('#name').val(),
+            age: $('#age').val(),
+            email: $('#email').val(),
+            phone: $('#phone').val(),
             total_assets_at_death: parseFloat($('input[name="total_assets_at_death"]').val()),
             annuity_type: $('select[name="annuity_type"]').val(),
             annuity_duration: $('select[name="annuity_duration"]').val(),
@@ -103,7 +132,7 @@
             years = parseInt(formData.annuity_duration)
           }
       
-          var result
+          let result
           if (formData.annuity_type === 'fixed') {
             result = formData.total_assets_at_death / years
           } else if (formData.annuity_type === 'variable') {
@@ -138,7 +167,10 @@
                   yAxes: [
                     {
                       ticks: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        callback: function (value, index, values) {
+                          return '$' + value.toLocaleString() // Add commas and dollar sign
+                        }
                       }
                     }
                   ],
@@ -158,62 +190,39 @@
             })
           }
       
-          const formatter = new Intl.NumberFormat('en-US')
+          const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2
+          })
           const formattedNumberPayout = formatter.format(result)
           const formattedNumberAssets = formatter.format(formData.total_assets_at_death)
           $('#total_assets').html(formattedNumberAssets)
           $('#annuity_payout').html(formattedNumberPayout)
-          $('#raw_total_assets').html(formData.total_assets_at_death)
-          $('#raw_annuity_payout').html(result)
-      
-          /** PDF Generation
-                                        document.getElementById('download-pdf').addEventListener('click', function () {
-                                          var doc = new jsPDF({
-                                            orientation: 'p', // Portrait orientation
-                                            unit: 'mm', // Units: millimeters
-                                            format: 'a4', // Page format: A4
-                                            putOnlyUsedFonts: true,
-                                            floatPrecision: 16,
-                                            lineHeight: 1.2
-                                          })
-                                    
-                                          // Set background color to white
-                                          doc.setFillColor(255, 255, 255) // White color
-                                          doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), 'F') // Fill rectangle with white color
-                                    
-                                          // Add HTML content
-                                          var contentElement = document.getElementById('content')
-                                          doc.fromHTML(contentElement, 10, 10, {
-                                            width: 180 // Width of the content on the PDF page
-                                          })
-                                    
-                                          // Add chart image
-                                          var chart = document.getElementById('financialChart').toDataURL('image/jpeg', 1.0)
-                                          doc.addImage(chart, 'JPEG', 10, 150, 180, 100) // Adjust the position and size of the image as needed
-                                    
-                                          // Save the PDF
-                                          doc.save('financial-plan.pdf')
-                                        }) **/
+          $('#raw_annuity_payout').val(result)
         })
       
-        // Send post data to API
-        // Generate PDF
+        // Generate PDF button click event
         document.getElementById('download-pdf').addEventListener('click', function () {
-          const formattedAssets = $('#total_assets').text()
-          const formattedAnnunity = $('#annuity_payout').text()
-          const assets = $('#raw_total_assets').text()
-          const annuity = $('#raw_annuity_payout').text()
+          const formData = {
+            name: $('#name').val(),
+            age: $('#age').val(),
+            email: $('#email').val(),
+            phone: $('#phone').val(),
+            assets: parseFloat($('input[name="total_assets_at_death"]').val()),
+            annuity: parseFloat($('input[name="raw_annuity_payout"]').val()),
+            annuity_type: $('select[name="annuity_type"]').val(),
+            annuity_duration: $('select[name="annuity_duration"]').val(),
+            expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val()),
+            formatted_assets: $('#total_assets').text(),
+            formatted_annuity: $('#annuity_payout').text()
+          }
           fetch("{{ url_for('financial_controller') }}store/", {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              formatted_assets: formattedAssets,
-              formatted_annuity: formattedAnnunity,
-              assets,
-              annuity
-            })
+            body: JSON.stringify(formData)
           })
             .then((response) => response.json())
             .then((data) => console.log(data))
