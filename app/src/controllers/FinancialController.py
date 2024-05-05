@@ -47,8 +47,8 @@ class FinancialController(MethodView):
         
         # Extract data from the form submission
         json_data = request.json
-        assets = float(json_data.get('assets', 0))
-        annuity = float(json_data.get('annuity', 0))
+        assets = float(json_data.get('total_assets_at_death', 0))
+        annuity = float(json_data.get('annuity', 0))  # Ensure 'annuity' key is used here
         
         # Additional data
         age = json_data.get('age')
@@ -157,8 +157,8 @@ class FinancialController(MethodView):
         pdf.set_font("Arial", size=12)  
 
         # Table headers
-        firstColumnSize = 50
-        secondColumnSize = 130
+        firstColumnSize = 70
+        secondColumnSize = 110
         pdf.set_fill_color(192, 192, 192)  # Light gray background for headers
         pdf.cell(firstColumnSize, 10, txt="Attribute", ln=0, align='L', fill=True)
         pdf.cell(secondColumnSize, 10, txt="Value", ln=1, align='L', fill=True)  # Wider second column
@@ -174,7 +174,15 @@ class FinancialController(MethodView):
             ("Annuity Duration", annuity_duration),
             ("Annuity Type", annuity_type),
             ("Assets", formatted_assets),
-            ("Expected Return Rate", str(expected_return_rate))
+            ("Expected Return Rate", str(expected_return_rate)),
+            ("Cash", locale.format_string("%.4f", float(json_data.get('cash', 0)), grouping=True)),  # Format cash with four decimal places
+            ("Personal Life Insurance", locale.format_string("%.4f", float(json_data.get('personal_life_insurance', 0)), grouping=True)),  # Format personal life insurance with four decimal places
+            ("Group Life Insurance", locale.format_string("%.4f", float(json_data.get('group_life_insurance', 0)), grouping=True)),  # Format group life insurance with four decimal places
+            ("CPP Death Benefit", locale.format_string("%.4f", float(json_data.get('cpp_death_benefit', 0)), grouping=True)),  # Format CPP death benefit with four decimal places
+            ("RPP Death Benefit", locale.format_string("%.4f", float(json_data.get('rpp_death_benefit', 0)), grouping=True)),  # Format RPP death benefit with four decimal places
+            ("RRSP to Liquidate", locale.format_string("%.4f", float(json_data.get('rrsp_to_liquidate', 0)), grouping=True)),  # Format RRSP to liquidate with four decimal places
+            ("Investments to Liquidate", locale.format_string("%.4f", float(json_data.get('investments_to_liquidate', 0)), grouping=True)),  # Format investments to liquidate with four decimal places
+            ("Other Assets to be Sold", locale.format_string("%.4f", float(json_data.get('other_assets', 0)), grouping=True))  # Format other assets to be sold with four decimal places
         ]
         alternate_color = False  # Variable to toggle row colors
         for attribute, value in customer_data:
