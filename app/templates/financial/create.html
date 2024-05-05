@@ -80,35 +80,35 @@
               </div>
               <div class="form-group mb-3">
                 <label for="cash" class="block mb-1">Cash:</label>
-                <input type="text" name="cash" id="cash" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input type="number" name="cash" id="cash" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
               <div class="form-group mb-3">
                 <label for="personal_life_insurance" class="block mb-1">Personal Life Insurance:</label>
-                <input type="text" name="personal_life_insurance" id="personal_life_insurance" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input type="number" name="personal_life_insurance" id="personal_life_insurance" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
               <div class="form-group mb-3">
                 <label for="group_life_insurance" class="block mb-1">Group Life Insurance:</label>
-                <input type="text" name="group_life_insurance" id="group_life_insurance" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input type="number" name="group_life_insurance" id="group_life_insurance" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
               <div class="form-group mb-3">
                 <label for="cpp_death_benefit" class="block mb-1">CPP Death Benefit:</label>
-                <input type="text" name="cpp_death_benefit" id="cpp_death_benefit" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input type="number" name="cpp_death_benefit" id="cpp_death_benefit" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
               <div class="form-group mb-3">
                 <label for="rpp_death_benefit" class="block mb-1">RPP Death Benefit:</label>
-                <input type="text" name="rpp_death_benefit" id="rpp_death_benefit" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input type="number" name="rpp_death_benefit" id="rpp_death_benefit" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
               <div class="form-group mb-3">
                 <label for="rrsp_to_liquidate" class="block mb-1">RRSP to Liquidate:</label>
-                <input type="text" name="rrsp_to_liquidate" id="rrsp_to_liquidate" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input type="number" name="rrsp_to_liquidate" id="rrsp_to_liquidate" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
               <div class="form-group mb-3">
                 <label for="investments_to_liquidate" class="block mb-1">Investments to Liquidate:</label>
-                <input type="text" name="investments_to_liquidate" id="investments_to_liquidate" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input type="number" name="investments_to_liquidate" id="investments_to_liquidate" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
               <div class="form-group mb-3">
                 <label for="other_assets" class="block mb-1">Other assets to be sold:</label>
-                <input type="text" name="other_assets" id="other_assets" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                <input type="number" name="other_assets" id="other_assets" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
             </fieldset>
 
@@ -225,15 +225,15 @@
                 </tr>
                 <!-- Annual Annuity Payout -->
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="flex items-center">
-                        <div class="ml-4">
-                          <div class="text-sm font-medium text-gray-900">Annual Annuity Payout:</div>
-                          <div class="text-lg font-bold text-gray-900" id="annuity_payout">$0.00</div>
-                        </div>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">Annual Annuity Payout:</div>
+                        <div class="text-lg font-bold text-gray-900" id="annuity_payout">$0.00</div>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -275,7 +275,7 @@
             dependents: $('#dependents').val(),
             money_timeframe: $('#money_timeframe').val(),
             withdrawal_timeline: $('#withdrawal_timeline').val(),
-            total_assets_at_death: parseFloat($('#total_assets_at_death').val()),
+            total_assets_at_death: calculateTotalAssetsAtDeath(), // Calculate Total Assets at Death
             cash: $('#cash').val(),
             personal_life_insurance: $('#personal_life_insurance').val(),
             group_life_insurance: $('#group_life_insurance').val(),
@@ -289,6 +289,10 @@
             expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val())
           }
       
+          // Compute Total Cash Needed
+          const totalCashNeeded = calculateTotalCashNeeded(formData)
+      
+          // Compute Annunity
           let years
           if (formData.annuity_duration === 'lifetime') {
             years = 20 // default lifetime duration in years
@@ -300,7 +304,7 @@
           if (formData.annuity_type === 'fixed') {
             result = formData.total_assets_at_death / years
           } else if (formData.annuity_type === 'variable') {
-            result = (formData.total_assets_at_death * (formData.expected_return_rate / 100)) / years
+            result = (formData.total_assets_at_death - totalCashNeeded) / years
           } else {
             result = 0
           }
@@ -364,6 +368,7 @@
           $('#total_assets').html(formattedNumberAssets)
           $('#annuity_payout').html(formattedNumberPayout)
           $('#raw_annuity_payout').val(result)
+          $('#total_cash_needed').html(formatter.format(totalCashNeeded)) // Update Total Cash Needed
         })
       
         // Generate PDF button click event
@@ -403,7 +408,6 @@
             body: JSON.stringify(formData)
           })
             .then((response) => response.json())
-      
             .then((data) => {
               const downloadUrl = "{{ url_for('static', filename='media/financial_chart.pdf') }}"
               const a = document.createElement('a')
@@ -417,6 +421,35 @@
             .catch((error) => console.error(error))
         })
       })
+      
+      function calculateTotalAssetsAtDeath() {
+        let totalAssets = 0
+        // Compute Total Assets at Death
+        totalAssets += parseFloat($('#total_assets_at_death').val())
+        totalAssets += parseFloat($('#cash').val())
+        totalAssets += parseFloat($('#personal_life_insurance').val())
+        totalAssets += parseFloat($('#group_life_insurance').val())
+        totalAssets += parseFloat($('#cpp_death_benefit').val())
+        totalAssets += parseFloat($('#rpp_death_benefit').val())
+        totalAssets += parseFloat($('#rrsp_to_liquidate').val())
+        totalAssets += parseFloat($('#investments_to_liquidate').val())
+        totalAssets += parseFloat($('#other_assets').val())
+        return totalAssets
+      }
+      
+      function calculateTotalCashNeeded(formData) {
+        let totalCashNeeded = 0
+        // Compute total cash needed from Part 3: Cash Needed
+        totalCashNeeded += parseFloat(formData.cash)
+        totalCashNeeded += parseFloat(formData.personal_life_insurance)
+        totalCashNeeded += parseFloat(formData.group_life_insurance)
+        totalCashNeeded += parseFloat(formData.cpp_death_benefit)
+        totalCashNeeded += parseFloat(formData.rpp_death_benefit)
+        totalCashNeeded += parseFloat(formData.rrsp_to_liquidate)
+        totalCashNeeded += parseFloat(formData.investments_to_liquidate)
+        totalCashNeeded += parseFloat(formData.other_assets)
+        return totalCashNeeded
+      }
     </script>
   </body>
 </html>
