@@ -195,7 +195,7 @@
         </div>
 
         <!-- Financial Overview -->
-        <fieldset class="p-4 bg-white rounded-md">
+        <fieldset id="financial_overview" class="fixed bottom-4 right-4 z-50 p-8 bg-white rounded-md border border-gray-300">
           <legend class="font-semibold text-lg mb-2">Financial Overview</legend>
           <!-- Financial Table -->
           <div class="overflow-x-auto">
@@ -287,6 +287,33 @@
             annuity_type: $('select[name="annuity_type"]').val(),
             annuity_duration: $('select[name="annuity_duration"]').val(),
             expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val())
+          }
+      
+          // Validate form data
+          if (formData.annuity_type === 'variable' && isNaN(formData.expected_return_rate)) {
+            // Get the input field for Expected Rate of Return
+            const expectedReturnRateInput = $('input[name="expected_return_rate"]')
+      
+            // Check if there's already an error message, if yes, remove it
+            if (expectedReturnRateInput.next('.error-message').length > 0) {
+              expectedReturnRateInput.next('.error-message').remove()
+            }
+      
+            // Add an error message
+            expectedReturnRateInput.after('<p class="error-message text-red-500">Please enter the Expected Rate of Return (%) for variable annuity type.</p>')
+      
+            // Set focus to the input field
+            expectedReturnRateInput.focus()
+      
+            // Add red border to highlight the input field
+            expectedReturnRateInput.addClass('border-red-500')
+      
+            return // Exit the function without further processing
+          } else {
+            // If there's no error, clear any existing error message and remove red border
+            const expectedReturnRateInput = $('input[name="expected_return_rate"]')
+            expectedReturnRateInput.removeClass('border-red-500')
+            expectedReturnRateInput.next('.error-message').remove()
           }
       
           // Compute Total Cash Needed
