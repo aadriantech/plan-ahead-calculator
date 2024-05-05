@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template
 from flask.views import MethodView
 from fpdf import FPDF
 import json
@@ -7,7 +7,20 @@ import os
 import locale
 
 class FinancialController(MethodView):
+    """
+    Controller class responsible for handling financial resource requests.
+    """
+    
     def get(self):
+        """
+        Handles GET requests to the financial resource endpoint.
+
+        Provides different responses based on the URL path:
+         - List financial resources if the path ends with '/'.
+         - Retrieve details of a resource if a valid ID is provided.
+         - Display the edit form if the path ends with '/edit'.
+         - Return an error if the resource ID is invalid.
+        """
         if request.path.endswith('/'):  # List all financial resources
             return jsonify({'message': 'List of financial resources'})
         
@@ -25,6 +38,13 @@ class FinancialController(MethodView):
         return render_template('financial/create.html')
 
     def store(self):
+        """
+        Processes form submission for creating or updating a financial resource.
+
+        This method extracts financial data, generates a chart, creates a customer 
+        information table, constructs a PDF, and returns a success response.
+        """
+        
         # Extract data from the form submission
         json_data = request.json
         assets = float(json_data.get('assets', 0))
