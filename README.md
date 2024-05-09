@@ -21,9 +21,9 @@ A user-friendly calculator for informed financial decision-making. Plan for your
    * HTML
    * CSS
    * JavaScript
-   * (Potentially a framework like React, Vue, or Angular – if you used one)
+   * Python
 * **Styling:** 
-   * Tailwind CSS (or your preferred CSS approach)
+   * Tailwind CSS
 * **Containerization:** Docker
 
 ## How to Use
