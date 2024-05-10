@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Financial Planning Tools</title>
+    <link href="{{ url_for('static', filename='styles/output.css') }}" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="content" class="container mx-auto mt-2">
+      <div class="grid grid-cols-2 gap-4 py-4">
+        <!-- Begin::calculator -->
+        <div class="p-4 bg-gray-100 rounded-md">
+          <h2 class="text-2xl font-bold mb-4">Financial Planning Tool</h2>
+          <form action="/submit" method="post" id="financialForm">
+            <!-- Client Information -->
+            <fieldset class="mb-8 border-l-4 border-blue-500 p-4 bg-white rounded-md">
+              <legend class="font-semibold text-lg mb-2">Client Information</legend>
+              <div class="form-group mb-3">
+                <label for="name" class="block mb-1">Name:</label>
+                <input type="text" name="name" id="name" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
+              <div class="form-group mb-3">
+                <label for="age" class="block mb-1">Age:</label>
+                <input type="number" name="age" id="age" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
+              <div class="form-group mb-3">
+                <label for="email" class="block mb-1">Email:</label>
+                <input type="email" name="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
+              <div class="form-group mb-3">
+                <label for="phone" class="block mb-1">Phone Number:</label>
+                <input type="tel" name="phone" id="phone" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
+              <div class="form-group mb-3">
+                <label for="family_situation" class="block mb-1">Family Situation:</label>
+                <select name="family_situation" id="family_situation" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="single">Single</option>
+                  <option value="two-income">Two-Income Household</option>
+                  <option value="single-income">Single-Income Household</option>
+                </select>
+              </div>
+              <div class="form-group mb-3">
+                <label for="dependents" class="block mb-1">Dependents:</label>
+                <select name="dependents" id="dependents" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="none">None</option>
+                  <option value="1">1 Dependent</option>
+                  <option value="2">2 Dependents</option>
+                  <option value="3+">3 or More Dependents</option>
+                </select>
+              </div>
+              <div class="form-group mb-3">
+                <label for="money_timeframe" class="block mb-1">When do you need your money?</label>
+                <select name="money_timeframe" id="money_timeframe" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="immediate">Immediately</option>
+                  <option value="1-5-years">In 1-5 years</option>
+                  <option value="6-10-years">In 6-10 years</option>
+                  <option value="more-than-10-years">More than 10 years</option>
+                </select>
+              </div>
+              <div class="form-group mb-3">
+                <label for="withdrawal_timeline" class="block mb-1">Will you make a withdrawal of 1/3 of your investment?</label>
+                <select name="withdrawal_timeline" id="withdrawal_timeline" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="0">Not planning to withdraw</option>
+                  <option value="1">Within 1 year</option>
+                  <option value="2">Within 2 years</option>
+                  <option value="3">Within 3 years</option>
+                  <option value="4">Within 4 years</option>
+                  <option value="5">Within 5 years</option>
+                  <option value="more-than-5-years">More than 5 years</option>
+                </select>
+              </div>
+            </fieldset>
+
+            <!-- Assets and Liabilities -->
+            <fieldset class="mb-8 border-l-4 border-green-500 p-4 bg-white rounded-md">
+              <legend class="font-semibold text-lg mb-2">Assets and Liabilities</legend>
+              <div class="form-group mb-3">
+                <label for="total_assets_at_death" class="block mb-1">Total Assets at Death:</label>
+                <input type="number" name="total_assets_at_death" id="total_assets_at_death" class="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+              </div>
+              <div class="form-group mb-3">
+                <label for="cash" class="block mb-1">Cash:</label>
+                <input type="number" name="cash" id="cash" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div class="form-group mb-3">
+                <label for="personal_life_insurance" class="block mb-1">Personal Life Insurance:</label>
+                <input type="number" name="personal_life_insurance" id="personal_life_insurance" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div class="form-group mb-3">
+                <label for="group_life_insurance" class="block mb-1">Group Life Insurance:</label>
+                <input type="number" name="group_life_insurance" id="group_life_insurance" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div class="form-group mb-3">
+                <label for="cpp_death_benefit" class="block mb-1">CPP Death Benefit:</label>
+                <input type="number" name="cpp_death_benefit" id="cpp_death_benefit" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div class="form-group mb-3">
+                <label for="rpp_death_benefit" class="block mb-1">RPP Death Benefit:</label>
+                <input type="number" name="rpp_death_benefit" id="rpp_death_benefit" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div class="form-group mb-3">
+                <label for="rrsp_to_liquidate" class="block mb-1">RRSP to Liquidate:</label>
+                <input type="number" name="rrsp_to_liquidate" id="rrsp_to_liquidate" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div class="form-group mb-3">
+                <label for="investments_to_liquidate" class="block mb-1">Investments to Liquidate:</label>
+                <input type="number" name="investments_to_liquidate" id="investments_to_liquidate" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div class="form-group mb-3">
+                <label for="other_assets" class="block mb-1">Other assets to be sold:</label>
+                <input type="number" name="other_assets" id="other_assets" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+            </fieldset>
+
+            <!-- Annuity Options -->
+            <fieldset class="mb-8 border-l-4 border-yellow-500 p-4 bg-white rounded-md">
+              <legend class="font-semibold text-lg mb-2">Annuity Options</legend>
+              <div class="form-group mb-3">
+                <label for="annuity_type" class="block mb-1">Annuity Type:</label>
+                <select name="annuity_type" id="annuity_type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="fixed">Fixed</option>
+                  <option value="variable">Variable</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <label for="annuity_duration" class="block text-sm font-medium text-gray-700 mb-1">Annuity Duration:</label>
+                <select name="annuity_duration" id="annuity_duration" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+                  <option value="lifetime">Lifetime</option>
+                  <option value="10">10 Years</option>
+                  <option value="20">20 Years</option>
+                </select>
+              </div>
+              <div class="mb-4" id="returnRateGroup" style="display:none;">
+                <label for="expected_return_rate" class="block text-sm font-medium text-gray-700 mb-1">Expected Rate of Return (%):</label>
+                <input type="number" name="expected_return_rate" id="expected_return_rate" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
+              </div>
+            </fieldset>
+
+            <!-- Part 3: Cash Needed -->
+            <fieldset class="mb-8 border-l-4 border-pink-500 p-4 bg-white rounded-md">
+              <legend class="font-semibold text-lg mb-2">Cash Needed</legend>
+              <!-- Final Expenses & Taxes -->
+              <div class="form-group mb-3">
+                <label for="final_expenses_taxes" class="block mb-1">Final Expenses & Taxes:</label>
+                <input type="number" name="final_expenses_taxes" id="final_expenses_taxes" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <!-- Mortgage Cancellations -->
+              <div class="form-group mb-3">
+                <label for="mortgage_cancellations" class="block mb-1">Mortgage Cancellations:</label>
+                <input type="number" name="mortgage_cancellations" id="mortgage_cancellations" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <!-- Debts -->
+              <div class="form-group mb-3">
+                <label for="debts" class="block mb-1">Debts:</label>
+                <input type="number" name="debts" id="debts" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <!-- Rent payment fund -->
+              <div class="form-group mb-3">
+                <label for="rent_payment_fund" class="block mb-1">Rent Payment Fund:</label>
+                <input type="number" name="rent_payment_fund" id="rent_payment_fund" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <!-- Spouse/child support -->
+              <div class="form-group mb-3">
+                <label for="spouse_child_support" class="block mb-1">Spouse/Child Support:</label>
+                <input type="number" name="spouse_child_support" id="spouse_child_support" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <!-- Children's education fund -->
+              <div class="form-group mb-3">
+                <label for="children_education_fund" class="block mb-1">Children's Education Fund:</label>
+                <input type="number" name="children_education_fund" id="children_education_fund" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <!-- Business Needs -->
+              <div class="form-group mb-3">
+                <label for="business_needs" class="block mb-1">Business Needs:</label>
+                <input type="number" name="business_needs" id="business_needs" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <!-- Income replacement -->
+              <div class="form-group mb-3">
+                <label for="income_replacement" class="block mb-1">Income Replacement:</label>
+                <input type="number" name="income_replacement" id="income_replacement" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <!-- Replace expenses for # years -->
+              <div class="form-group mb-3">
+                <label for="replace_expenses_years" class="block mb-1">Replace Expenses for # Years:</label>
+                <input type="number" name="replace_expenses_years" id="replace_expenses_years" class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+            </fieldset>
+
+            <!-- Submit Buttons -->
+            <div class="flex justify-between mt-8">
+              <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-md">Generate Report</button>
+              <button id="download-pdf" class="bg-blue-500 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-md">Generate PDF</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Financial Overview -->
+        <fieldset id="financial_overview" class="fixed bottom-4 right-4 z-50 p-8 bg-white rounded-md border border-gray-300">
+          <legend class="font-semibold text-lg mb-2">Financial Overview</legend>
+          <!-- Financial Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <tbody class="bg-white divide-y divide-gray-200">
+                <!-- Total Assets at Death -->
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center">
+                        <div class="ml-4">
+                          <div class="text-sm font-medium text-gray-900">Total Assets at Death:</div>
+                          <div class="text-lg font-bold text-blue-500" id="total_assets">$0.00</div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                <!-- Total Cash Needed -->
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">Total Cash Needed:</div>
+                        <div class="text-lg font-bold text-red-500" id="total_cash_needed">$0.00</div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Annual Annuity Payout -->
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">Annual Annuity Payout:</div>
+                        <div class="text-lg font-bold text-green-500" id="annuity_payout">$0.00</div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Chart Canvas -->
+          <canvas id="financialChart" width="400" height="400" class="max-w-md max-h-md mx-auto border border-gray-300 rounded-md shadow-md"></canvas>
+          <!-- Hidden Input Fields for Raw Data -->
+          <input id="raw_annuity_payout" type="hidden" name="raw_annuity_payout" />
+        </fieldset>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        const annuityType = $('select[name="annuity_type"]')
+        annuityType.change(function () {
+          const selectedType = $(this).val()
+          const returnRateGroup = $('#returnRateGroup')
+          if (selectedType === 'variable') {
+            returnRateGroup.show()
+          } else {
+            returnRateGroup.hide()
+          }
+        })
+      
+        let financialChart
+      
+        $('#financialForm').submit(function (event) {
+          event.preventDefault()
+          const formData = {
+            name: $('#name').val(),
+            age: $('#age').val(),
+            email: $('#email').val(),
+            phone: $('#phone').val(),
+            family_situation: $('#family_situation').val(),
+            dependents: $('#dependents').val(),
+            money_timeframe: $('#money_timeframe').val(),
+            withdrawal_timeline: $('#withdrawal_timeline').val(),
+            total_assets_at_death: calculateTotalAssetsAtDeath(), // Calculate Total Assets at Death
+            cash: $('#cash').val(),
+            personal_life_insurance: $('#personal_life_insurance').val(),
+            group_life_insurance: $('#group_life_insurance').val(),
+            cpp_death_benefit: $('#cpp_death_benefit').val(),
+            rpp_death_benefit: $('#rpp_death_benefit').val(),
+            rrsp_to_liquidate: $('#rrsp_to_liquidate').val(),
+            investments_to_liquidate: $('#investments_to_liquidate').val(),
+            other_assets: $('#other_assets').val(),
+            annuity_type: $('select[name="annuity_type"]').val(),
+            annuity_duration: $('select[name="annuity_duration"]').val(),
+            expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val())
+          }
+      
+          // Validate form data
+          if (formData.annuity_type === 'variable' && isNaN(formData.expected_return_rate)) {
+            // Get the input field for Expected Rate of Return
+            const expectedReturnRateInput = $('input[name="expected_return_rate"]')
+      
+            // Check if there's already an error message, if yes, remove it
+            if (expectedReturnRateInput.next('.error-message').length > 0) {
+              expectedReturnRateInput.next('.error-message').remove()
+            }
+      
+            // Add an error message
+            expectedReturnRateInput.after('<p class="error-message text-red-500">Please enter the Expected Rate of Return (%) for variable annuity type.</p>')
+      
+            // Set focus to the input field
+            expectedReturnRateInput.focus()
+      
+            // Add red border to highlight the input field
+            expectedReturnRateInput.addClass('border-red-500')
+      
+            return // Exit the function without further processing
+          } else {
+            // If there's no error, clear any existing error message and remove red border
+            const expectedReturnRateInput = $('input[name="expected_return_rate"]')
+            expectedReturnRateInput.removeClass('border-red-500')
+            expectedReturnRateInput.next('.error-message').remove()
+          }
+      
+          // Compute Total Cash Needed
+          const totalCashNeeded = calculateTotalCashNeeded(formData)
+      
+          // Compute Annunity
+          let years
+          if (formData.annuity_duration === 'lifetime') {
+            years = 20 // default lifetime duration in years
+          } else {
+            years = parseInt(formData.annuity_duration)
+          }
+      
+          let result
+          if (formData.annuity_type === 'fixed') {
+            result = formData.total_assets_at_death / years
+          } else if (formData.annuity_type === 'variable') {
+            result = (formData.total_assets_at_death - totalCashNeeded) / years
+          } else {
+            result = 0
+          }
+      
+          const ctx = document.getElementById('financialChart').getContext('2d')
+          const chartData = {
+            labels: ['Total Assets at Death', 'Annual Annuity Payout'],
+            datasets: [
+              {
+                label: 'Financial Data',
+                data: [formData.total_assets_at_death, result],
+                backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderWidth: 1
+              }
+            ]
+          }
+      
+          if (financialChart) {
+            financialChart.data.datasets[0].data = [formData.total_assets_at_death, result]
+            financialChart.update() // Redraw the chart
+          } else {
+            financialChart = new Chart(ctx, {
+              type: 'bar',
+              data: chartData,
+              options: {
+                scales: {
+                  yAxes: [
+                    {
+                      ticks: {
+                        beginAtZero: true,
+                        callback: function (value, index, values) {
+                          return '$' + value.toLocaleString() // Add commas and dollar sign
+                        }
+                      }
+                    }
+                  ],
+                  xAxes: [
+                    {
+                      ticks: {
+                        autoSkip: false, // prevent skipping labels
+                        rotation: 45 // rotate by 45 degrees
+                      }
+                    }
+                  ]
+                },
+                legend: {
+                  display: false
+                }
+              }
+            })
+          }
+      
+          const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2
+          })
+          const formattedNumberPayout = formatter.format(result)
+          const formattedNumberAssets = formatter.format(formData.total_assets_at_death)
+          $('#total_assets').html(formattedNumberAssets)
+          $('#annuity_payout').html(formattedNumberPayout)
+          $('#raw_annuity_payout').val(result)
+          $('#total_cash_needed').html(formatter.format(totalCashNeeded)) // Update Total Cash Needed
+        })
+      
+        // Generate PDF button click event
+        document.getElementById('download-pdf').addEventListener('click', function () {
+          const formData = {
+            name: $('#name').val(),
+            age: $('#age').val(),
+            email: $('#email').val(),
+            phone: $('#phone').val(),
+            family_situation: $('#family_situation').val(),
+            dependents: $('#dependents').val(),
+            money_timeframe: $('#money_timeframe').val(),
+            withdrawal_timeline: $('#withdrawal_timeline').val(),
+            total_assets_at_death: parseFloat($('#total_assets_at_death').val()),
+            cash: $('#cash').val(),
+            personal_life_insurance: $('#personal_life_insurance').val(),
+            group_life_insurance: $('#group_life_insurance').val(),
+            cpp_death_benefit: $('#cpp_death_benefit').val(),
+            rpp_death_benefit: $('#rpp_death_benefit').val(),
+            rrsp_to_liquidate: $('#rrsp_to_liquidate').val(),
+            investments_to_liquidate: $('#investments_to_liquidate').val(),
+            other_assets: $('#other_assets').val(),
+            assets: parseFloat($('#total_assets_at_death').val()),
+            annuity: parseFloat($('#raw_annuity_payout').val()),
+            annuity_type: $('select[name="annuity_type"]').val(),
+            annuity_duration: $('select[name="annuity_duration"]').val(),
+            expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val()),
+            formatted_assets: $('#total_assets').text(),
+            formatted_annuity: $('#annuity_payout').text()
+          }
+      
+          fetch("{{ url_for('financial_controller') }}store/", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              const downloadUrl = "{{ url_for('static', filename='media/financial_chart.pdf') }}"
+              const a = document.createElement('a')
+              a.href = downloadUrl
+              a.download = 'financial_chart.pdf'
+              document.body.appendChild(a) // Required for Firefox
+              a.click()
+              document.body.removeChild(a) // Clean up after download
+            })
+            .then((data) => console.log(data))
+            .catch((error) => console.error(error))
+        })
+      })
+      
+      function calculateTotalAssetsAtDeath() {
+        let totalAssets = 0
+        // Compute Total Assets at Death
+        totalAssets += parseFloat($('#total_assets_at_death').val())
+        totalAssets += parseFloat($('#cash').val())
+        totalAssets += parseFloat($('#personal_life_insurance').val())
+        totalAssets += parseFloat($('#group_life_insurance').val())
+        totalAssets += parseFloat($('#cpp_death_benefit').val())
+        totalAssets += parseFloat($('#rpp_death_benefit').val())
+        totalAssets += parseFloat($('#rrsp_to_liquidate').val())
+        totalAssets += parseFloat($('#investments_to_liquidate').val())
+        totalAssets += parseFloat($('#other_assets').val())
+        return totalAssets
+      }
+      
+      function calculateTotalCashNeeded(formData) {
+        let totalCashNeeded = 0
+        // Compute total cash needed from Part 3: Cash Needed
+        totalCashNeeded += parseFloat(formData.cash)
+        totalCashNeeded += parseFloat(formData.personal_life_insurance)
+        totalCashNeeded += parseFloat(formData.group_life_insurance)
+        totalCashNeeded += parseFloat(formData.cpp_death_benefit)
+        totalCashNeeded += parseFloat(formData.rpp_death_benefit)
+        totalCashNeeded += parseFloat(formData.rrsp_to_liquidate)
+        totalCashNeeded += parseFloat(formData.investments_to_liquidate)
+        totalCashNeeded += parseFloat(formData.other_assets)
+        return totalCashNeeded
+      }
+    </script>
+  </body>
+</html>

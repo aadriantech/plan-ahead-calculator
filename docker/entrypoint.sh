@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# Optional: Set Flask environment variables 
-export FLASK_APP=app.py  # Assuming your main Flask file is named app.py
-export FLASK_ENV=local
-
-# print environment variables
-printenv | sort
-
 INIT_FLAG_FILE=".tailwind_initialized" 
 
 # Check if Tailwind CSS is initialized if not, create the necessary tailwind config files
@@ -57,13 +50,6 @@ fi
 echo "[ENTRYPOINT] check NPM libraries based on package lock file"
 npm ci
 
-if [ "$FLASK_ENV" == "local" ]; then
-    echo "[ENTRYPOINT] Local environment detected."
-
-else
-    echo "[ENTRYPOINT] Environment is not local."
-fi
-
 # Build the CSS files
 echo "[ENTRYPOINT] Build the tailwind CSS files.."
 npx tailwindcss -i /var/www/app/static/styles/main.css -o /var/www/app/static/styles/output.css
@@ -84,11 +70,23 @@ done
 echo "[ENTRYPOINT] Checking Flask version..."
 flask --version
 
+# Optional: Set Flask environment variables 
+export FLASK_APP=main.py # root python file - entrypoint of application
+export FLASK_ENV=local
+
 # Check if the file appeared within the timeout
 if [ -f "$TAILWIND_OUTPUT_FILE" ]; then
     echo "[ENTRYPOINT] CSS file found, Starting the Flask server..."
     cd /var/www/app
-    flask run --host=0.0.0.0
+
+    if [ "$FLASK_ENV" == "local" ]; then
+        echo "[ENTRYPOINT] Local environment detected."
+        flask run --host=0.0.0.0 --debug
+    else
+        echo "[ENTRYPOINT] Non-local environment."
+        flask run --host=0.0.0.0
+    fi
+
 else
     echo "[ENTRYPOINT] Timeout waiting for output CSS file. Exiting."
     # You might want to exit with an error code if appropriate: 

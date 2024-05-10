@@ -1,2 +1,4 @@
-Flask
-weasyprint
+Flask==3.0.3
+requests
+Pillow
+fpdf

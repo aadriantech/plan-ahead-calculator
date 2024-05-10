@@ -1,0 +1,11 @@
+<html>
+<head>
+    <title>Financial Report</title>
+</head>
+<body>
+    <h1>Financial Report</h1>
+    <p>Total Assets at Death: {{ total_assets_at_death }}</p>
+    <p>Annual Annuity Payout: {{ annuity_payout }}</p>
+    <img src="{{ url_for('static', filename='media/' + chart_filename) }}" alt="Financial Chart">
+</body>
+</html>

@@ -19,4 +19,6 @@ RUN pip install -r /requirements.txt
 
 RUN chmod +x /entrypoint.sh && chmod +x /requirements.txt
 
+EXPOSE 5000
+
 ENTRYPOINT ["/entrypoint.sh"]
