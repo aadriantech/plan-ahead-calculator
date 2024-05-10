@@ -1,5 +1,3 @@
-version: '3.8'  # Or a suitable Compose file version
-
 services:
   webapp: # Name of your service
     build: 
