@@ -423,7 +423,7 @@
             withdrawal_timeline: $('#withdrawal_timeline').val(),
     
             // Numerical fields with zero default if blank
-            total_assets_at_death: parseFloat($('#total_assets_at_death').val() || 0),
+            total_assets_at_death: calculateTotalAssetsAtDeath() || 0,
             cash: parseFloat($('#cash').val() || 0),
             personal_life_insurance: parseFloat($('#personal_life_insurance').val() || 0),
             group_life_insurance: parseFloat($('#group_life_insurance').val() || 0),
@@ -432,7 +432,7 @@
             rrsp_to_liquidate: parseFloat($('#rrsp_to_liquidate').val() || 0),
             investments_to_liquidate: parseFloat($('#investments_to_liquidate').val() || 0),
             other_assets: parseFloat($('#other_assets').val() || 0),
-            assets: parseFloat($('#total_assets_at_death').val() || 0),
+            assets: calculateTotalAssetsAtDeath() || 0,
             annuity: parseFloat($('#raw_annuity_payout').val() || 0),
             annuity_type: $('select[name="annuity_type"]').val(),
             annuity_duration: $('select[name="annuity_duration"]').val(),
@@ -470,7 +470,7 @@
               a.click()
               document.body.removeChild(a) // Clean up after download
             })
-            .then((data) => console.log(data))
+            //.then((data) => console.log(data))
             .catch((error) => console.error(error))
         })
       })

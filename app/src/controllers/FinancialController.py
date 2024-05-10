@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, current_app
 from flask.views import MethodView
 from fpdf import FPDF
 import json
@@ -195,9 +195,9 @@ class FinancialController(MethodView):
             alternate_color = not alternate_color  # Toggle row colors
 
         # Save PDF
-        pdf_path = '/var/www/app/static/media/financial_chart.pdf'  
+        pdf_path = current_app.config['APPLICATION_PATH'] + 'app/static/media/financial_chart.pdf'
         pdf.output(pdf_path)
-
+    
         # Return response
         return jsonify({
             'message': 'Resource saved successfully',
