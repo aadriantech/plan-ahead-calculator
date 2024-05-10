@@ -286,7 +286,18 @@
             other_assets: $('#other_assets').val(),
             annuity_type: $('select[name="annuity_type"]').val(),
             annuity_duration: $('select[name="annuity_duration"]').val(),
-            expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val())
+            expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val()),
+
+            // Cash Needed section
+            final_expenses_taxes: $('#final_expenses_taxes').val(),
+            mortgage_cancellations: $('#mortgage_cancellations').val(),
+            debts: $('#debts').val(),
+            rent_payment_fund: $('#rent_payment_fund').val(),
+            spouse_child_support: $('#spouse_child_support').val(),
+            children_education_fund: $('#children_education_fund').val(),
+            business_needs: $('#business_needs').val(),
+            income_replacement: $('#income_replacement').val(),
+            replace_expenses_years: $('#replace_expenses_years').val()
           }
       
           // Validate form data
@@ -401,6 +412,7 @@
         // Generate PDF button click event
         document.getElementById('download-pdf').addEventListener('click', function () {
           const formData = {
+            // Other form fields...
             name: $('#name').val(),
             age: $('#age').val(),
             email: $('#email').val(),
@@ -409,23 +421,37 @@
             dependents: $('#dependents').val(),
             money_timeframe: $('#money_timeframe').val(),
             withdrawal_timeline: $('#withdrawal_timeline').val(),
-            total_assets_at_death: parseFloat($('#total_assets_at_death').val()),
-            cash: $('#cash').val(),
-            personal_life_insurance: $('#personal_life_insurance').val(),
-            group_life_insurance: $('#group_life_insurance').val(),
-            cpp_death_benefit: $('#cpp_death_benefit').val(),
-            rpp_death_benefit: $('#rpp_death_benefit').val(),
-            rrsp_to_liquidate: $('#rrsp_to_liquidate').val(),
-            investments_to_liquidate: $('#investments_to_liquidate').val(),
-            other_assets: $('#other_assets').val(),
-            assets: parseFloat($('#total_assets_at_death').val()),
-            annuity: parseFloat($('#raw_annuity_payout').val()),
+    
+            // Numerical fields with zero default if blank
+            total_assets_at_death: parseFloat($('#total_assets_at_death').val() || 0),
+            cash: parseFloat($('#cash').val() || 0),
+            personal_life_insurance: parseFloat($('#personal_life_insurance').val() || 0),
+            group_life_insurance: parseFloat($('#group_life_insurance').val() || 0),
+            cpp_death_benefit: parseFloat($('#cpp_death_benefit').val() || 0),
+            rpp_death_benefit: parseFloat($('#rpp_death_benefit').val() || 0),
+            rrsp_to_liquidate: parseFloat($('#rrsp_to_liquidate').val() || 0),
+            investments_to_liquidate: parseFloat($('#investments_to_liquidate').val() || 0),
+            other_assets: parseFloat($('#other_assets').val() || 0),
+            assets: parseFloat($('#total_assets_at_death').val() || 0),
+            annuity: parseFloat($('#raw_annuity_payout').val() || 0),
             annuity_type: $('select[name="annuity_type"]').val(),
             annuity_duration: $('select[name="annuity_duration"]').val(),
-            expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val()),
+            expected_return_rate: parseFloat($('input[name="expected_return_rate"]').val() || 0),
+    
             formatted_assets: $('#total_assets').text(),
-            formatted_annuity: $('#annuity_payout').text()
-          }
+            formatted_annuity: $('#annuity_payout').text(),
+            
+            // Cash Needed section with zero default if blank
+            final_expenses_taxes: parseFloat($('#final_expenses_taxes').val() || 0),
+            mortgage_cancellations: parseFloat($('#mortgage_cancellations').val() || 0),
+            debts: parseFloat($('#debts').val() || 0),
+            rent_payment_fund: parseFloat($('#rent_payment_fund').val() || 0),
+            spouse_child_support: parseFloat($('#spouse_child_support').val() || 0),
+            children_education_fund: parseFloat($('#children_education_fund').val() || 0),
+            business_needs: parseFloat($('#business_needs').val() || 0),
+            income_replacement: parseFloat($('#income_replacement').val() || 0),
+            replace_expenses_years: parseFloat($('#replace_expenses_years').val() || 0)
+        };
       
           fetch("{{ url_for('financial_controller') }}store/", {
             method: 'POST',
@@ -450,33 +476,38 @@
       })
       
       function calculateTotalAssetsAtDeath() {
-        let totalAssets = 0
+        let totalAssets = 0;
+    
         // Compute Total Assets at Death
-        totalAssets += parseFloat($('#total_assets_at_death').val())
-        totalAssets += parseFloat($('#cash').val())
-        totalAssets += parseFloat($('#personal_life_insurance').val())
-        totalAssets += parseFloat($('#group_life_insurance').val())
-        totalAssets += parseFloat($('#cpp_death_benefit').val())
-        totalAssets += parseFloat($('#rpp_death_benefit').val())
-        totalAssets += parseFloat($('#rrsp_to_liquidate').val())
-        totalAssets += parseFloat($('#investments_to_liquidate').val())
-        totalAssets += parseFloat($('#other_assets').val())
-        return totalAssets
-      }
+        totalAssets += parseFloat($('#total_assets_at_death').val()) || 0;
+        totalAssets += parseFloat($('#cash').val()) || 0;
+        totalAssets += parseFloat($('#personal_life_insurance').val()) || 0;
+        totalAssets += parseFloat($('#group_life_insurance').val()) || 0;
+        totalAssets += parseFloat($('#cpp_death_benefit').val()) || 0;
+        totalAssets += parseFloat($('#rpp_death_benefit').val()) || 0;
+        totalAssets += parseFloat($('#rrsp_to_liquidate').val()) || 0;
+        totalAssets += parseFloat($('#investments_to_liquidate').val()) || 0;
+        totalAssets += parseFloat($('#other_assets').val()) || 0;
+    
+        return totalAssets;
+    }
       
       function calculateTotalCashNeeded(formData) {
-        let totalCashNeeded = 0
+        let totalCashNeeded = 0;
+    
         // Compute total cash needed from Part 3: Cash Needed
-        totalCashNeeded += parseFloat(formData.cash)
-        totalCashNeeded += parseFloat(formData.personal_life_insurance)
-        totalCashNeeded += parseFloat(formData.group_life_insurance)
-        totalCashNeeded += parseFloat(formData.cpp_death_benefit)
-        totalCashNeeded += parseFloat(formData.rpp_death_benefit)
-        totalCashNeeded += parseFloat(formData.rrsp_to_liquidate)
-        totalCashNeeded += parseFloat(formData.investments_to_liquidate)
-        totalCashNeeded += parseFloat(formData.other_assets)
-        return totalCashNeeded
-      }
+        totalCashNeeded += parseFloat(formData.final_expenses_taxes || 0);
+        totalCashNeeded += parseFloat(formData.mortgage_cancellations || 0);
+        totalCashNeeded += parseFloat(formData.debts || 0);
+        totalCashNeeded += parseFloat(formData.rent_payment_fund || 0);
+        totalCashNeeded += parseFloat(formData.spouse_child_support || 0);
+        totalCashNeeded += parseFloat(formData.children_education_fund || 0);
+        totalCashNeeded += parseFloat(formData.business_needs || 0);
+        totalCashNeeded += parseFloat(formData.income_replacement || 0);
+        totalCashNeeded += parseFloat(formData.replace_expenses_years || 0);
+    
+        return totalCashNeeded;
+    }
     </script>
   </body>
 </html>
