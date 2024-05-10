@@ -3,4 +3,4 @@
 __pycache__
 node_modules
 /static/media/*
-app/static/media/
+app/static/media/*
