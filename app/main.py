@@ -13,7 +13,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Set configuration variables from environment variables
-app.config['APPLICATION_PATH'] = os.getenv('APPLICATION_PATH', '/var/www/plan-ahead-calculator')
+app.config['APPLICATION_PATH'] = os.getenv('APPLICATION_PATH', '/var/www/plan-ahead-calculator/')
 
 # Initialize routes
 init_routes(app)
