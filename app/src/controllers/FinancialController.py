@@ -195,7 +195,7 @@ class FinancialController(MethodView):
             alternate_color = not alternate_color  # Toggle row colors
 
         # Save PDF
-        pdf_path = current_app.config['APPLICATION_PATH'] + 'financial_chart.pdf'
+        pdf_path = current_app.config['APPLICATION_PATH'] + '/app/static/media/financial_chart.pdf'
         pdf.output(pdf_path)
     
         # Return response
